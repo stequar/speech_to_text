@@ -30,7 +30,7 @@ class MethodChannelSpeechToText extends SpeechToTextPlatform {
 
   @override
   Future<bool> initialize(
-      {debugLogging = false, List<SpeechConfigOption>? options}) async {
+      {debugLogging = false, List<SpeechConfigOption> options}) async {
     _channel.setMethodCallHandler(_handleCallbacks);
     var params = <String, Object>{
       'debugLogging': debugLogging,
@@ -98,7 +98,7 @@ class MethodChannelSpeechToText extends SpeechToTextPlatform {
   ///
   @override
   Future<bool> listen(
-      {String? localeId,
+      {String localeId,
       partialResults = true,
       onDevice = false,
       int listenMode = 0,
@@ -127,22 +127,22 @@ class MethodChannelSpeechToText extends SpeechToTextPlatform {
     switch (call.method) {
       case textRecognitionMethod:
         if (call.arguments is String && null != onTextRecognition) {
-          onTextRecognition!(call.arguments);
+          onTextRecognition(call.arguments);
         }
         break;
       case notifyErrorMethod:
         if (call.arguments is String && null != onError) {
-          onError!(call.arguments);
+          onError(call.arguments);
         }
         break;
       case notifyStatusMethod:
         if (call.arguments is String && null != onStatus) {
-          onStatus!(call.arguments);
+          onStatus(call.arguments);
         }
         break;
       case soundLevelChangeMethod:
         if (call.arguments is double && null != onSoundLevel) {
-          onSoundLevel!(call.arguments);
+          onSoundLevel(call.arguments);
         }
         break;
       default:

@@ -191,8 +191,8 @@ class SpeechToText {
 
   int _listenStartedAt = 0;
   int _lastSpeechEventAt = 0;
-  Duration? _pauseFor;
-  Duration? _listenFor;
+  Duration _pauseFor;
+  Duration _listenFor;
   Duration _finalTimeout = defaultFinalTimeout;
 
   /// True if not listening or the user called cancel / stop, false
@@ -201,15 +201,15 @@ class SpeechToText {
   String _lastRecognized = '';
   String _lastStatus = '';
   double _lastSoundLevel = 0;
-  Timer? _listenTimer;
-  Timer? _notifyFinalTimer;
-  LocaleName? _systemLocale;
-  SpeechRecognitionError? _lastError;
-  SpeechRecognitionResult? _lastSpeechResult;
-  SpeechResultListener? _resultListener;
-  SpeechErrorListener? errorListener;
-  SpeechStatusListener? statusListener;
-  SpeechSoundLevelChange? _soundLevelChange;
+  Timer _listenTimer;
+  Timer _notifyFinalTimer;
+  LocaleName _systemLocale;
+  SpeechRecognitionError _lastError;
+  SpeechRecognitionResult _lastSpeechResult;
+  SpeechResultListener _resultListener;
+  SpeechErrorListener errorListener;
+  SpeechStatusListener statusListener;
+  SpeechSoundLevelChange _soundLevelChange;
 
   factory SpeechToText() => _instance;
 
@@ -251,7 +251,7 @@ class SpeechToText {
 
   /// The last error received or null if none, see [initialize] to
   /// register an optional listener to be notified of errors.
-  SpeechRecognitionError? get lastError => _lastError;
+  SpeechRecognitionError get lastError => _lastError;
 
   /// True if an error has been received, see [lastError] for details
   bool get hasError => null != lastError;
@@ -305,11 +305,11 @@ class SpeechToText {
   /// [options] pass platform specific configuration options to the
   /// platform specific implementation.
   Future<bool> initialize(
-      {SpeechErrorListener? onError,
-      SpeechStatusListener? onStatus,
+      {SpeechErrorListener onError,
+      SpeechStatusListener onStatus,
       debugLogging = false,
       Duration finalTimeout = defaultFinalTimeout,
-      List<SpeechConfigOption>? options}) async {
+      List<SpeechConfigOption> options}) async {
     if (_initWorked) {
       return Future.value(_initWorked);
     }
@@ -435,11 +435,11 @@ class SpeechToText {
   /// crash with `sampleRate != device's supported sampleRate`, try 44100 if seeing
   /// crashes.
   Future listen(
-      {SpeechResultListener? onResult,
-      Duration? listenFor,
-      Duration? pauseFor,
-      String? localeId,
-      SpeechSoundLevelChange? onSoundLevelChange,
+      {SpeechResultListener onResult,
+      Duration listenFor,
+      Duration pauseFor,
+      String localeId,
+      SpeechSoundLevelChange onSoundLevelChange,
       cancelOnError = false,
       partialResults = true,
       onDevice = false,
@@ -497,8 +497,7 @@ class SpeechToText {
     }
   }
 
-  void _setupListenAndPause(
-      Duration? initialPauseFor, Duration? initialListenFor,
+  void _setupListenAndPause(Duration initialPauseFor, Duration initialListenFor,
       {bool ignoreElapsedPause = false}) {
     _pauseFor = null;
     _listenFor = null;
@@ -518,7 +517,7 @@ class SpeechToText {
     }
     Duration minDuration;
     if (null == pauseFor) {
-      _listenFor = Duration(milliseconds: listenFor!.inMilliseconds);
+      _listenFor = Duration(milliseconds: listenFor.inMilliseconds);
       minDuration = listenFor;
     } else if (null == listenFor) {
       _pauseFor = Duration(milliseconds: pauseFor.inMilliseconds);
@@ -603,7 +602,7 @@ class SpeechToText {
 
   /// Returns the locale that will be used if no localeId is passed
   /// to the [listen] method.
-  Future<LocaleName?> systemLocale() async {
+  Future<LocaleName> systemLocale() async {
     if (null == _systemLocale) {
       await locales();
     }
@@ -621,7 +620,7 @@ class SpeechToText {
     // print('onFinalTimeout $_finalTimeout');
     if (_notifiedFinal) return;
     if (_lastSpeechResult != null && null != _resultListener) {
-      var finalResult = _lastSpeechResult!.toFinal();
+      var finalResult = _lastSpeechResult.toFinal();
       _notifyResults(finalResult);
     }
   }
@@ -646,7 +645,7 @@ class SpeechToText {
       _notifiedFinal = true;
     }
     if (null != _resultListener) {
-      _resultListener!(speechResult);
+      _resultListener(speechResult);
     }
     if (_notifiedFinal) {
       _onNotifyStatus(_finalStatus);
@@ -661,7 +660,7 @@ class SpeechToText {
     var speechError = SpeechRecognitionError.fromJson(errorMap);
     _lastError = speechError;
     if (null != errorListener) {
-      errorListener!(speechError);
+      errorListener(speechError);
     }
     if (_cancelOnError && speechError.permanent) {
       await _cancel();
@@ -691,7 +690,7 @@ class SpeechToText {
     _listening = status == listeningStatus;
     // print(status);
     if (null != statusListener) {
-      statusListener!(status);
+      statusListener(status);
     }
   }
 
@@ -701,7 +700,7 @@ class SpeechToText {
     }
     _lastSoundLevel = level;
     if (null != _soundLevelChange) {
-      _soundLevelChange!(level);
+      _soundLevelChange(level);
     }
   }
 
@@ -723,9 +722,9 @@ class SpeechToTextNotInitializedException implements Exception {}
 /// Thrown when listen fails to properly start a speech listening session
 /// on the device.
 class ListenFailedException implements Exception {
-  final String? message;
-  final String? details;
-  final String? stackTrace;
+  final String message;
+  final String details;
+  final String stackTrace;
 
   ListenFailedException(this.message, [this.details, this.stackTrace]);
 }

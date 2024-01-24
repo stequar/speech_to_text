@@ -6,7 +6,7 @@ import 'package:speech_to_text_platform_interface/speech_to_text_platform_interf
 class BalancedAlternates {
   final Map<int, List<SpeechRecognitionWords>> _alternates = {};
 
-  static bool isAggregateResultsEnabled(List<SpeechConfigOption>? options) {
+  static bool isAggregateResultsEnabled(List<SpeechConfigOption> options) {
     if (null == options) return true;
     final any = options.any((option) =>
         option.platform == 'web' &&
@@ -57,24 +57,23 @@ class BalancedAlternates {
         var alternatePhrase = '';
         var alternateConfidence = 1.0;
         for (var phraseIndex = 0; phraseIndex < phraseCount; ++phraseIndex) {
-          alternatePhrase +=
-              _alternates[phraseIndex]![altCount].recognizedWords;
+          alternatePhrase += _alternates[phraseIndex][altCount].recognizedWords;
           alternateConfidence = min(alternateConfidence,
-              _alternates[phraseIndex]![altCount].confidence);
+              _alternates[phraseIndex][altCount].confidence);
         }
         result
             .add(SpeechRecognitionWords(alternatePhrase, alternateConfidence));
       }
     } else {
       for (var phraseIndex = phraseCount - 1; phraseIndex >= 0; --phraseIndex) {
-        if ((_alternates[phraseIndex]?[0].recognizedWords.trim() ?? '')
+        if ((_alternates[phraseIndex][0].recognizedWords.trim() ?? '')
             .isEmpty) {
           continue;
         }
         for (var altIndex = 0;
-            altIndex < _alternates[phraseIndex]!.length;
+            altIndex < _alternates[phraseIndex].length;
             ++altIndex) {
-          result.add(_alternates[phraseIndex]![altIndex]);
+          result.add(_alternates[phraseIndex][altIndex]);
         }
         // result.add(SpeechRecognitionWords(
         //     _alternates[phraseIndex]![0].recognizedWords,

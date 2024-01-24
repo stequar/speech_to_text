@@ -35,24 +35,24 @@ enum SpeechRecognitionEventType {
 /// use the other properties to get information about it.
 class SpeechRecognitionEvent {
   final SpeechRecognitionEventType eventType;
-  final SpeechRecognitionError? _error;
-  final SpeechRecognitionResult? _result;
-  final bool? _listening;
-  final double? _level;
+  final SpeechRecognitionError _error;
+  final SpeechRecognitionResult _result;
+  final bool _listening;
+  final double _level;
 
   SpeechRecognitionEvent(
       this.eventType, this._result, this._error, this._listening, this._level);
 
   /// true when there is still an active listening session, false when the
   /// listening session has ended.
-  bool? get isListening => _listening;
+  bool get isListening => _listening;
 
   /// the sound level seen on the input.
-  double? get level => _level;
+  double get level => _level;
 
   /// The words recognized by the speech recognizer during a listen session.
-  SpeechRecognitionResult? get recognitionResult => _result;
+  SpeechRecognitionResult get recognitionResult => _result;
 
   /// The error received from the speech recognizer.
-  SpeechRecognitionError? get error => _error;
+  SpeechRecognitionError get error => _error;
 }
